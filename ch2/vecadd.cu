@@ -38,8 +38,9 @@ void vecAdd(float* A_h, float* B_h, float* C_h, int n){
     clock_gettime(CLOCK_MONOTONIC, &k0);
     fillKernel<<<(n + 255) / 256, 256>>>(A_d, n);
     fillKernel<<<(n + 255) / 256, 256>>>(B_d, n);
-
-    vecAddKernel<<<(n + 255) / 256, 256>>>(A_d, B_d, C_d, n);
+    dim3 dimGrid(ceil(n/256.0), 1, 1);
+    dim3 dimBlock(256, 1, 1);
+    vecAddKernel<<<dimGrid, dimBlock>>>(A_d, B_d, C_d, n);
     cudaDeviceSynchronize();                 // <-- without this you time nothing
     clock_gettime(CLOCK_MONOTONIC, &k1);
     double kms = (k1.tv_sec - k0.tv_sec)*1000.0 + (k1.tv_nsec - k0.tv_nsec)/1e6;

@@ -1,7 +1,7 @@
 
 #include <vector>
 #include <iostream>
-
+#include <chrono>
 template <typename T>
 void fill(std::vector<T>& input){
 
@@ -17,12 +17,10 @@ std::vector<T> matrixMul(const std::vector<T>& A, int M, int K, int N, const std
     if ((int)A.size() != M*K || (int)B.size() != K*N ) return {};
     std::vector<T> C(M * N);
     for (int i = 0; i < M; i++) {
-        for (int j = 0; j < N; j++) {
-            T sum = 0;
-            for (int k = 0; k < K; k++) {
-                sum += A[i * K + k] * B[k * N + j];
+        for (int k = 0; k < K; k++) {
+            for (int j = 0; j < N; j++)  {
+            C[i*N+j] += A[i*K+k] * B[k*N+j]; 
             }
-            C[i * N + j] = sum;
         }
     }
 
@@ -44,7 +42,13 @@ int main(int argc, char const *argv[])
     fill(B);
     std::cout << "Filled B \n";
 
-    std::vector<float> res = matrixMul(A, M, K, N, B);
+    auto t0 = std::chrono::high_resolution_clock::now();
 
+    auto C = matrixMul(A, M, K, N, B); 
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+
+    double ms = std::chrono::duration<double, std::milli>(t1 - t0).count();
+    printf("CPU: %.3f ms\n", ms);
     return 0;
 }
